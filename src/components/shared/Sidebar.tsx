@@ -1,4 +1,4 @@
-"use client";
+"use client"; //usePathname() only works for client side component
 
 import { navLinks } from "@/constants";
 import { usePathname } from "next/navigation";
