@@ -1,16 +1,5 @@
 import mongoose, {Schema} from "mongoose";
 
-export interface IUser extends mongoose.Document {
-    clerkId: string;
-    email: string;
-    userName: string;
-    photo?: string;
-    firstName?: string;
-    lastName?: string;
-    planId: string;
-    creditBalance: number;
-}
-
 const userSchema = new Schema({
     clerkId: {type: String, required: true, unique: true},
     email: {type: String, required: true, unique: true},
