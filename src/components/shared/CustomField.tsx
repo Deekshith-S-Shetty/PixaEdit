@@ -1,59 +1,43 @@
-"use client";
-
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import { Control } from "react-hook-form";
 import {
-  Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { formSchema } from "./TransformationForm";
 
-const formSchema = z.object({
-  username: z.string(),
-});
+type customerFieldProps = {
+  control: Control<z.infer<typeof formSchema>>;
+  render: (props: any) => JSX.Element;
+  name: keyof z.infer<typeof formSchema>;
+  formLabel: string;
+  className: string;
+};
 
-const CustomField = () => {
-  // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-    },
-  });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
-
+const CustomField = ({
+  control,
+  render,
+  name,
+  formLabel,
+  className,
+}: customerFieldProps) => {
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="TestInput" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => {
+        return (
+          <FormItem className={className}>
+            {formLabel && <FormLabel>{formLabel}</FormLabel>}
+            <FormControl>{render({ field })}</FormControl>
+            <FormMessage />
+          </FormItem>
+        );
+      }}
+    />
   );
 };
 
