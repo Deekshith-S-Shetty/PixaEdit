@@ -27,6 +27,7 @@ import { TransformationFormProps } from "@/types";
 import { aspectRatioOptions, transformationTypes } from "@/constants";
 import { AspectRatioKey } from "@/lib/utils";
 import { useState } from "react";
+import { Button } from "../ui/button";
 
 export const formSchema = z.object({
   title: z.string(),
@@ -47,6 +48,8 @@ const TransformationForm = ({
   const transformatioinType = transformationTypes[type];
   const [image, setImage] = useState(data);
   const [newTransformation, setNewTransformation] = useState(config);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTransforming, setIsTransforming] = useState(false);
 
   const initialValues = {
     title: data?.title || "",
@@ -175,6 +178,44 @@ const TransformationForm = ({
           />
         </div>
       )}
+
+      {type === "recolor" && (
+        <CustomField
+          control={form.control}
+          name="color"
+          formLabel="Replacement Color"
+          className="w-full"
+          render={({ field }) => (
+            <Input
+              value={field.value}
+              className="input-field"
+              onChange={(e) =>
+                onInputChangeHandler(
+                  "color",
+                  e.target.value,
+                  type,
+                  field.onChange
+                )
+              }
+            />
+          )}
+        />
+      )}
+      <Button
+        type="submit"
+        className="submit-button capitalize"
+        disabled={isTransforming || newTransformation === null}
+      >
+        {isTransforming ? "Transforming..." : "Apply Transformation"}
+      </Button>
+
+      <Button
+        type="submit"
+        className="submit-button capitalize"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Submitting..." : "Save Image"}
+      </Button>
     </Form>
   );
 };
