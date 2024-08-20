@@ -23,10 +23,10 @@ import {
 import { Input } from "@/components/ui/input";
 
 import CustomField from "./CustomField";
-import { TransformationFormProps } from "@/types";
+import { TransformationFormProps, Transformations } from "@/types";
 import { aspectRatioOptions, transformationTypes } from "@/constants";
 import { AspectRatioKey } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "../ui/button";
 
 export const formSchema = z.object({
@@ -47,9 +47,11 @@ const TransformationForm = ({
 }: TransformationFormProps) => {
   const transformatioinType = transformationTypes[type];
   const [image, setImage] = useState(data);
-  const [newTransformation, setNewTransformation] = useState(config);
+  const [newTransformation, setNewTransformation] =
+    useState<Transformations | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
+  const [isPending, setTransition] = useTransition();
 
   const initialValues = {
     title: data?.title || "",
@@ -102,6 +104,15 @@ const TransformationForm = ({
     return onChange(value);
   };
 
+  const onTransformHandler = () => {
+    setIsTransforming(true);
+    setNewTransformation(null);
+
+    setTransition(() => {
+      // Update User Credits
+    });
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -114,108 +125,114 @@ const TransformationForm = ({
             return <Input {...field} className="input-field -ml-1" />;
           }}
         />
-      </form>
-
-      {type === "fill" && (
-        <CustomField
-          control={form.control}
-          name="aspectRatio"
-          formLabel="Aspect Ratio"
-          className="w-full"
-          render={({ field }) => {
-            return (
-              <Select
-                value={field.value}
-                onValueChange={(value) =>
-                  onSelectFieldChangeHandler(value, field.onChange)
-                }
-              >
-                <SelectTrigger className="select-field">
-                  <SelectValue placeholder="Select size">
-                    {field.value}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.keys(aspectRatioOptions).map((key) => {
-                    return (
-                      <SelectItem key={key} value={key} className="select-item">
-                        {aspectRatioOptions[key as AspectRatioKey].label}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            );
-          }}
-        />
-      )}
-
-      {(type === "remove" || type === "recolor") && (
-        <div className="prompt-field">
+        {type === "fill" && (
           <CustomField
             control={form.control}
-            name="prompt"
+            name="aspectRatio"
+            formLabel="Aspect Ratio"
             className="w-full"
-            formLabel={
-              type === "remove" ? "Object to Remove" : "Object to Recolor"
-            }
             render={({ field }) => {
               return (
-                <Input
+                <Select
                   value={field.value}
-                  className="input-field"
-                  onChange={(e) =>
-                    onInputChangeHandler(
-                      "prompt",
-                      e.target.value,
-                      type,
-                      field.onChange
-                    )
+                  onValueChange={(value) =>
+                    onSelectFieldChangeHandler(value, field.onChange)
                   }
-                />
+                >
+                  <SelectTrigger className="select-field">
+                    <SelectValue placeholder="Select size">
+                      {field.value}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(aspectRatioOptions).map((key) => {
+                      return (
+                        <SelectItem
+                          key={key}
+                          value={key}
+                          className="select-item"
+                        >
+                          {aspectRatioOptions[key as AspectRatioKey].label}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
               );
             }}
           />
-        </div>
-      )}
+        )}
 
-      {type === "recolor" && (
-        <CustomField
-          control={form.control}
-          name="color"
-          formLabel="Replacement Color"
-          className="w-full"
-          render={({ field }) => (
-            <Input
-              value={field.value}
-              className="input-field"
-              onChange={(e) =>
-                onInputChangeHandler(
-                  "color",
-                  e.target.value,
-                  type,
-                  field.onChange
-                )
+        {(type === "remove" || type === "recolor") && (
+          <div className="prompt-field">
+            <CustomField
+              control={form.control}
+              name="prompt"
+              className="w-full"
+              formLabel={
+                type === "remove" ? "Object to Remove" : "Object to Recolor"
               }
+              render={({ field }) => {
+                return (
+                  <Input
+                    value={field.value}
+                    className="input-field"
+                    onChange={(e) =>
+                      onInputChangeHandler(
+                        "prompt",
+                        e.target.value,
+                        type,
+                        field.onChange
+                      )
+                    }
+                  />
+                );
+              }}
             />
-          )}
-        />
-      )}
-      <Button
-        type="submit"
-        className="submit-button capitalize"
-        disabled={isTransforming || newTransformation === null}
-      >
-        {isTransforming ? "Transforming..." : "Apply Transformation"}
-      </Button>
+          </div>
+        )}
 
-      <Button
-        type="submit"
-        className="submit-button capitalize"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? "Submitting..." : "Save Image"}
-      </Button>
+        {type === "recolor" && (
+          <CustomField
+            control={form.control}
+            name="color"
+            formLabel="Replacement Color"
+            className="w-full"
+            render={({ field }) => (
+              <Input
+                value={field.value}
+                className="input-field"
+                onChange={(e) =>
+                  onInputChangeHandler(
+                    "color",
+                    e.target.value,
+                    type,
+                    field.onChange
+                  )
+                }
+              />
+            )}
+          />
+        )}
+        <div className="flex flex-col gap-4">
+          <Button
+            type="button"
+            className="submit-button capitalize"
+            disabled={isTransforming || newTransformation === null}
+            onClick={onTransformHandler}
+          >
+            {isTransforming ? "Transforming..." : "Apply Transformation"}
+          </Button>
+
+          <Button
+            type="submit"
+            className="submit-button capitalize"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Save Image"}
+          </Button>
+        </div>
+      </form>
     </Form>
   );
 };
