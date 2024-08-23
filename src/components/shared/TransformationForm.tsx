@@ -26,8 +26,10 @@ import CustomField from "./CustomField";
 import { TransformationFormProps, Transformations } from "@/types";
 import { aspectRatioOptions, transformationTypes } from "@/constants";
 import { AspectRatioKey } from "@/lib/utils";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Button } from "../ui/button";
+import { FileDiff } from "lucide-react";
+import MediaUploader from "./MediaUploader";
 
 export const formSchema = z.object({
   title: z.string(),
@@ -45,12 +47,14 @@ const TransformationForm = ({
   creditBalance,
   config = null,
 }: TransformationFormProps) => {
-  const transformatioinType = transformationTypes[type];
+  const transformationType = transformationTypes[type];
   const [image, setImage] = useState(data);
   const [newTransformation, setNewTransformation] =
     useState<Transformations | null>(null);
+  const [transformationConfig, setTransformationConfig] = useState(config);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
+  //startTransition lets you update the state without blocking the UI.
   const [isPending, setTransition] = useTransition();
 
   const initialValues = {
@@ -83,7 +87,7 @@ const TransformationForm = ({
       height: imageSize.height,
     }));
 
-    setNewTransformation(transformatioinType.config);
+    setNewTransformation(transformationType.config);
     return onChange(value);
   };
 
@@ -106,12 +110,21 @@ const TransformationForm = ({
 
   const onTransformHandler = () => {
     setIsTransforming(true);
+
+    setTransformationConfig(newTransformation);
+
     setNewTransformation(null);
 
     setTransition(() => {
       // Update User Credits
     });
   };
+
+  useEffect(() => {
+    if (image && (type === "restore" || type === "removeBackground")) {
+      setNewTransformation(transformationType.config);
+    }
+  }, [image, transformationType.config, type]);
 
   return (
     <Form {...form}>
@@ -172,48 +185,63 @@ const TransformationForm = ({
               formLabel={
                 type === "remove" ? "Object to Remove" : "Object to Recolor"
               }
-              render={({ field }) => {
-                return (
+              render={({ field }) => (
+                <Input
+                  value={field.value}
+                  className="input-field"
+                  onChange={(e) =>
+                    onInputChangeHandler(
+                      "prompt",
+                      e.target.value,
+                      type,
+                      field.onChange
+                    )
+                  }
+                />
+              )}
+            />
+            {type === "recolor" && (
+              <CustomField
+                control={form.control}
+                name="color"
+                formLabel="Replacement Color"
+                className="w-full"
+                render={({ field }) => (
                   <Input
                     value={field.value}
                     className="input-field"
                     onChange={(e) =>
                       onInputChangeHandler(
-                        "prompt",
+                        "color",
                         e.target.value,
                         type,
                         field.onChange
                       )
                     }
                   />
-                );
-              }}
-            />
+                )}
+              />
+            )}
           </div>
         )}
 
-        {type === "recolor" && (
+        <div className="media-uploader-field">
           <CustomField
             control={form.control}
-            name="color"
-            formLabel="Replacement Color"
-            className="w-full"
+            name="publicId"
+            className="flex size-full flex-col"
             render={({ field }) => (
-              <Input
-                value={field.value}
-                className="input-field"
-                onChange={(e) =>
-                  onInputChangeHandler(
-                    "color",
-                    e.target.value,
-                    type,
-                    field.onChange
-                  )
-                }
+              <MediaUploader
+                onValueChange={field.onChange}
+                setImage={setImage}
+                publicId={field.value}
+                image={image}
+                type={type}
               />
             )}
           />
-        )}
+        </div>
+
         <div className="flex flex-col gap-4">
           <Button
             type="button"

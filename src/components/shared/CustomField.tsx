@@ -13,8 +13,8 @@ type customerFieldProps = {
   control: Control<z.infer<typeof formSchema>>;
   render: (props: any) => JSX.Element;
   name: keyof z.infer<typeof formSchema>;
-  formLabel: string;
-  className: string;
+  formLabel?: string;
+  className?: string;
 };
 
 const CustomField = ({
