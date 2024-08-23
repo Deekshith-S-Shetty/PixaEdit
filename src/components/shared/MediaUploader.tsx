@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { CldImage, CldUploadWidget } from "next-cloudinary";
 import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
