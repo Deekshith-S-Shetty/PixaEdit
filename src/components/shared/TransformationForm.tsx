@@ -24,13 +24,20 @@ import { Input } from "@/components/ui/input";
 
 import CustomField from "./CustomField";
 import { TransformationFormProps, Transformations } from "@/types";
-import { aspectRatioOptions, transformationTypes } from "@/constants";
+import {
+  aspectRatioOptions,
+  defaultValues,
+  transformationTypes,
+} from "@/constants";
 import { AspectRatioKey } from "@/lib/utils";
 import { useEffect, useState, useTransition } from "react";
 import { Button } from "../ui/button";
 import { FileDiff } from "lucide-react";
 import MediaUploader from "./MediaUploader";
 import TransformedImage from "./TransformedImage";
+import { getCldImageUrl } from "next-cloudinary";
+import { addImage } from "@/lib/actions/image.actions";
+import { useRouter } from "next/navigation";
 
 export const formSchema = z.object({
   title: z.string(),
@@ -57,23 +64,68 @@ const TransformationForm = ({
   const [isTransforming, setIsTransforming] = useState(false);
   //startTransition lets you update the state without blocking the UI.
   const [isPending, setTransition] = useTransition();
+  const router = useRouter();
 
-  const initialValues = {
-    title: data?.title || "",
-    aspectRatio: data?.aspectRatio || "",
-    color: data?.color || "",
-    prompt: data?.prompt || "",
-    publicId: data?.publicId || "",
-  };
+  const initialValues =
+    data && action === "Update"
+      ? {
+          title: data?.title,
+          aspectRatio: data?.aspectRatio,
+          color: data?.color,
+          prompt: data?.prompt,
+          publicId: data?.publicId,
+        }
+      : defaultValues;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues,
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log("values", values);
-  };
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+
+    if (data || image) {
+      const transformationURL = getCldImageUrl({
+        width: image?.width,
+        height: image?.height,
+        src: image?.publicId || "",
+        ...transformationConfig,
+      });
+
+      const imageData = {
+        title: values.title,
+        publicId: image?.publicId || "",
+        transformationType: type,
+        width: image?.width || 0,
+        height: image?.height || 0,
+        config: transformationConfig,
+        secureURL: image?.secureURL || "",
+        transformationURL: transformationURL,
+        aspectRatio: values.aspectRatio,
+        prompt: values.prompt,
+        color: values.color,
+      };
+
+      if (action === "Add") {
+        try {
+          const newImage = await addImage({
+            image: imageData,
+            userId,
+            path: "/",
+          });
+
+          if (newImage) {
+            form.reset();
+            setImage(data);
+            router.push(`/transformations/${newImage._id}`);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
+  }
 
   const onSelectFieldChangeHandler = (
     value: string,
@@ -139,6 +191,7 @@ const TransformationForm = ({
             return <Input {...field} className="input-field -ml-1" />;
           }}
         />
+
         {type === "fill" && (
           <CustomField
             control={form.control}
@@ -201,6 +254,7 @@ const TransformationForm = ({
                 />
               )}
             />
+
             {type === "recolor" && (
               <CustomField
                 control={form.control}

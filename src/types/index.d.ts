@@ -2,7 +2,7 @@
 
 import { IImage } from "@/lib/database/models/image.model";
 
-// ====== USER PARAMS
+//USER PARAMS
 export declare type CreateUserParams = {
   clerkId: string;
   email: string;
@@ -19,6 +19,45 @@ export declare type UpdateUserParams = {
   photo: string;
 };
 
+//IMAGE PARAMS
+export declare type AddImageParams = {
+  image: {
+    title: string;
+    publicId: string;
+    transformationType: string;
+    width: number;
+    height: number;
+    config: any;
+    secureURL: string;
+    transformationURL: string;
+    aspectRatio: string | undefined;
+    prompt: string | undefined;
+    color: string | undefined;
+  };
+  userId: string;
+  path: string;
+};
+
+export declare type UpdateImageParams = {
+  image: {
+    _id: string;
+    title: string;
+    publicId: string;
+    transformationType: string;
+    width: number;
+    height: number;
+    config: any;
+    secureURL: string;
+    transformationURL: string;
+    aspectRatio: string | undefined;
+    prompt: string | undefined;
+    color: string | undefined;
+  };
+  userId: string;
+  path: string;
+};
+
+// TRANSFORMATIONS PARAMS
 export declare type Transformations = {
   restore?: boolean;
   fillBackground?: boolean;
