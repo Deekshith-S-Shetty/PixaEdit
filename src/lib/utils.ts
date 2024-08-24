@@ -48,3 +48,25 @@ export const dataUrl = `data:image/svg+xml;base64,${toBase64(
 )}`;
 
 export type AspectRatioKey = keyof typeof aspectRatioOptions;
+
+//Download Image
+export const download = (url: string, fileName: string) => {
+  if (!url) throw new Error("Resource URL not provided!");
+
+  fetch(url)
+    .then((response) => response.blob())
+    .then((blob) => {
+      const blobURL = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobURL;
+
+      if (fileName && fileName.length) {
+        a.download = `${fileName.replace(" ", "_")}.png}`;
+      }
+      document.body.appendChild(a);
+      a.click();
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};

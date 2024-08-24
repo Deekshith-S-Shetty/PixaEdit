@@ -1,8 +1,11 @@
 "use client";
 
-import { TransformedImageProps } from "@/types";
-import Image from "next/image";
 import React from "react";
+import Image from "next/image";
+import { dataUrl, download } from "@/lib/utils";
+import { CldImage, getCldImageUrl } from "next-cloudinary";
+import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
+import { TransformedImageProps } from "@/types";
 
 const TransformedImage = ({
   image,
@@ -13,7 +16,21 @@ const TransformedImage = ({
   transformationConfig,
   hasDownload = true,
 }: TransformedImageProps) => {
-  const downloadHandler = () => {};
+  const downloadHandler = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+
+    download(
+      getCldImageUrl({
+        width: image?.width,
+        height: image?.height,
+        src: image?.publicId,
+        ...transformationConfig,
+      }),
+      title
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -31,6 +48,36 @@ const TransformedImage = ({
           </button>
         )}
       </div>
+      {image?.publicId && transformationConfig ? (
+        <div className="relative">
+          <CldImage
+            width={image.width}
+            height={image.height}
+            src={image.publidId}
+            alt={image.title}
+            sizes={"(max-width:767px) 100vw, 50vw"}
+            placeholder={dataUrl as PlaceholderValue}
+            className="transformed-image"
+            onLoad={() => isTransforming && setIsTransforming(false)}
+            onError={() => {}}
+            {...transformationConfig}
+          />
+
+          {isTransforming && (
+            <div className="transforming-loader">
+              <Image
+                src="/assets/icons/spinner.svg"
+                width={50}
+                height={50}
+                alt="spinner"
+              />
+              <p className="text-white/80">please wait...</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="transformed-placeholder">Transformed Image</div>
+      )}
     </div>
   );
 };
