@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { dataUrl, download } from "@/lib/utils";
+import { dataUrl, debounce, download, getImageSize } from "@/lib/utils";
 import { CldImage, getCldImageUrl } from "next-cloudinary";
 import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
 import { TransformedImageProps } from "@/types";
@@ -51,15 +51,19 @@ const TransformedImage = ({
       {image?.publicId && transformationConfig ? (
         <div className="relative">
           <CldImage
-            width={image.width}
-            height={image.height}
+            width={getImageSize(type, image, "width")}
+            height={getImageSize(type, image, "height")}
             src={image.publidId}
             alt={image.title}
             sizes={"(max-width:767px) 100vw, 50vw"}
             placeholder={dataUrl as PlaceholderValue}
             className="transformed-image"
             onLoad={() => isTransforming && setIsTransforming(false)}
-            onError={() => {}}
+            onError={() => {
+              debounce(() => {
+                isTransforming && setIsTransforming(false);
+              }, 8000)();
+            }}
             {...transformationConfig}
           />
 

@@ -47,7 +47,30 @@ export const dataUrl = `data:image/svg+xml;base64,${toBase64(
   shimmer(1000, 1000)
 )}`;
 
+//Debounce
+export const debounce = (func: (...args: any[]) => void, delay: number) => {
+  let timeoutId: NodeJS.Timeout | null;
+  return (...args: any[]) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(null, args), delay);
+  };
+};
+
 export type AspectRatioKey = keyof typeof aspectRatioOptions;
+
+export const getImageSize = (
+  type: string,
+  image: any,
+  dimension: "width" | "height"
+) => {
+  if (type == "fill") {
+    return (
+      aspectRatioOptions[image.AspectRatio as AspectRatioKey]?.[dimension] ||
+      1000
+    );
+  }
+  return image?.[dimension] || 1000;
+};
 
 //Download Image
 export const download = (url: string, fileName: string) => {
