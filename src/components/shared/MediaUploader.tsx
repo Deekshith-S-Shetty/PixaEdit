@@ -3,7 +3,8 @@
 import React from "react";
 import { CldImage, CldUploadWidget } from "next-cloudinary";
 import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
-import { dataUrl } from "@/lib/utils";
+import { dataUrl, getImageSize } from "@/lib/utils";
+import { useToast } from "@/components/ui/use-toast";
 import Image from "next/image";
 
 type MediaUploaderProps = {
@@ -21,6 +22,8 @@ const MediaUploader = ({
   publicId,
   type,
 }: MediaUploaderProps) => {
+  const { toast } = useToast();
+
   const onUploadSuccessHandler = (result: any) => {
     setImage((prevState: any) => ({
       ...prevState,
@@ -31,9 +34,21 @@ const MediaUploader = ({
     }));
 
     onValueChange(result?.info?.public_id);
+
+    toast({
+      title: "Image uploaded successfully",
+      description: "1 credit was deducted from you account",
+      duration: 5000,
+      className: "success-toast",
+    });
   };
   const onUploadErrorHandler = () => {
-    console.log("error");
+    toast({
+      title: "Something went wrong while uploading",
+      description: "Please try again",
+      duration: 5000,
+      className: "error-toast",
+    });
   };
 
   return (
@@ -50,8 +65,8 @@ const MediaUploader = ({
           {publicId ? (
             <div className="cursor-pointer overflow-hidden rounded-[10px]">
               <CldImage
-                width={image?.width}
-                height={image?.height}
+                width={getImageSize(type, image, "width")}
+                height={getImageSize(type, image, "height")}
                 src={publicId}
                 alt="image"
                 sizes={"(max-width: 767px) 100vw, 50vw"}
