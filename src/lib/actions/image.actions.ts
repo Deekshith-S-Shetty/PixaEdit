@@ -1,6 +1,6 @@
 "use server";
 
-import { AddImageParams } from "@/types";
+import { AddImageParams, UpdateImageParams } from "@/types";
 import { connectToDatabase } from "../database/mongoose";
 import { handleError } from "../utils";
 import User from "../database/models/user.model";
@@ -20,6 +20,29 @@ export async function addImage({ image, userId, path }: AddImageParams) {
     revalidatePath(path);
 
     return JSON.parse(JSON.stringify(newImage));
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+export async function updateImage({ image, userId, path }: UpdateImageParams) {
+  try {
+    await connectToDatabase();
+    const imageToUpdate = await Image.findById(image._id);
+
+    if (!imageToUpdate || imageToUpdate.author.toHexString() !== userId) {
+      throw new Error("Unauthorized or image not found");
+    }
+
+    const updatedImage = await Image.findByIdAndUpdate(
+      imageToUpdate._id,
+      image,
+      { new: true }
+    );
+
+    revalidatePath(path);
+
+    return JSON.parse(JSON.stringify(updatedImage));
   } catch (error) {
     handleError(error);
   }

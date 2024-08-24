@@ -36,7 +36,7 @@ import { FileDiff } from "lucide-react";
 import MediaUploader from "./MediaUploader";
 import TransformedImage from "./TransformedImage";
 import { getCldImageUrl } from "next-cloudinary";
-import { addImage } from "@/lib/actions/image.actions";
+import { addImage, updateImage } from "@/lib/actions/image.actions";
 import { useRouter } from "next/navigation";
 
 export const formSchema = z.object({
@@ -124,7 +124,29 @@ const TransformationForm = ({
           console.log(error);
         }
       }
+
+      if (action === "Update") {
+        if (data) {
+          try {
+            const updatedImage = await updateImage({
+              image: {
+                ...imageData,
+                _id: data._id,
+              },
+              userId,
+              path: `/transformations/${data._id}`,
+            });
+
+            if (updatedImage) {
+              router.push(`/transformations/${updatedImage._id}`);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      }
     }
+    setIsSubmitting(false);
   }
 
   const onSelectFieldChangeHandler = (
