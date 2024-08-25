@@ -26,6 +26,7 @@ import CustomField from "./CustomField";
 import { TransformationFormProps, Transformations } from "@/types";
 import {
   aspectRatioOptions,
+  creditFee,
   defaultValues,
   transformationTypes,
 } from "@/constants";
@@ -38,6 +39,7 @@ import TransformedImage from "./TransformedImage";
 import { getCldImageUrl } from "next-cloudinary";
 import { addImage, updateImage } from "@/lib/actions/image.actions";
 import { useRouter } from "next/navigation";
+import { updateCredits } from "@/lib/actions/user.actions";
 
 export const formSchema = z.object({
   title: z.string(),
@@ -89,18 +91,18 @@ const TransformationForm = ({
       const transformationURL = getCldImageUrl({
         width: image?.width,
         height: image?.height,
-        src: image?.publicId || "",
+        src: image?.publicId,
         ...transformationConfig,
       });
 
       const imageData = {
         title: values.title,
-        publicId: image?.publicId || "",
+        publicId: image?.publicId,
         transformationType: type,
-        width: image?.width || 0,
-        height: image?.height || 0,
+        width: image?.width,
+        height: image?.height,
         config: transformationConfig,
-        secureURL: image?.secureURL || "",
+        secureURL: image?.secureURL,
         transformationURL: transformationURL,
         aspectRatio: values.aspectRatio,
         prompt: values.prompt,
@@ -186,12 +188,13 @@ const TransformationForm = ({
   const onTransformHandler = () => {
     setIsTransforming(true);
 
+    // This part is what starts the transformation process
     setTransformationConfig(newTransformation);
 
     setNewTransformation(null);
 
-    setTransition(() => {
-      // Update User Credits
+    setTransition(async () => {
+      await updateCredits(userId, creditFee);
     });
   };
 
