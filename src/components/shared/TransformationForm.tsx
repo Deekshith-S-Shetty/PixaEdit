@@ -33,7 +33,6 @@ import {
 import { AspectRatioKey } from "@/lib/utils";
 import { useEffect, useState, useTransition } from "react";
 import { Button } from "../ui/button";
-import { FileDiff } from "lucide-react";
 import MediaUploader from "./MediaUploader";
 import TransformedImage from "./TransformedImage";
 import { getCldImageUrl } from "next-cloudinary";
