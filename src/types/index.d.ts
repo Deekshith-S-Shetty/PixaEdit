@@ -79,6 +79,24 @@ export declare type TransformationTypeKey =
   | "recolor"
   | "removeBackground";
 
+// URL QUERY PARAMS
+declare type FormUrlQueryParams = {
+  searchParams: string;
+  key: string;
+  value: string | number | null;
+};
+
+declare type UrlQueryParams = {
+  params: string;
+  key: string;
+  value: string | null;
+};
+
+declare type RemoveUrlQueryParams = {
+  searchParams: string;
+  keysToRemove: string[];
+};
+
 export declare type SearchParamProps = {
   params: { id: string; type: TransformationTypeKey };
   searchParams: { [key: string]: string | string[] | undefined };
