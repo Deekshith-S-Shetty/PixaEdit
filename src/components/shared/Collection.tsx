@@ -12,6 +12,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Button } from "../ui/button";
+import { formUrlQuery } from "@/lib/utils";
 
 type CollectionProps = {
   hasSearch: boolean;
@@ -49,7 +50,7 @@ const Collection = ({
       </div>
 
       {images.length > 0 ? (
-        <ul className="collectioin-list">
+        <ul className="collection-list">
           {images.map((image: any) => (
             <Card key={image._id} image={image} />
           ))}

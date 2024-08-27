@@ -5,9 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const Card = (image: any) => {
+const Card = ({ image }: any) => {
   return (
-    <li>
+    <li className="mb-4">
       <Link href={`/transformations/${image._id}`} className="collection-card">
         <CldImage
           src={image.publicId}
