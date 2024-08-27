@@ -58,10 +58,10 @@ const TransformedImage = ({
             sizes={"(max-width:767px) 100vw, 50vw"}
             placeholder={dataUrl as PlaceholderValue}
             className="transformed-image"
-            onLoad={() => isTransforming && setIsTransforming(false)}
+            onLoad={() => setIsTransforming && setIsTransforming(false)}
             onError={() => {
               debounce(() => {
-                isTransforming && setIsTransforming(false);
+                setIsTransforming && setIsTransforming(false);
               }, 8000)();
             }}
             {...transformationConfig}
