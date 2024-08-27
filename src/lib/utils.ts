@@ -2,7 +2,7 @@ import { aspectRatioOptions } from "@/constants";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import qs from "qs";
-import { FormUrlQueryParams } from "@/types";
+import { FormUrlQueryParams, RemoveUrlQueryParams } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -61,6 +61,22 @@ export const formUrlQuery = ({
     skipNulls: true,
   })}`;
 };
+
+// Remove Key from Query
+export function removeKeysFromQuery({
+  searchParams,
+  keysToRemove,
+}: RemoveUrlQueryParams) {
+  const currentUrl = qs.parse(searchParams);
+
+  keysToRemove.forEach((key: string) => {
+    delete currentUrl[key];
+  });
+
+  return `${window.location.pathname}?${qs.stringify(currentUrl, {
+    skipNulls: true,
+  })}`;
+}
 
 //Debounce
 export const debounce = (func: (...args: any[]) => void, delay: number) => {
