@@ -6,6 +6,7 @@ import Collection from "@/components/shared/Collection";
 import Header from "@/components/shared/Header";
 import { getUserImages } from "@/lib/actions/image.actions";
 import { getUserById } from "@/lib/actions/user.actions";
+import { SearchParamProps } from "@/types";
 
 const Profile = async ({ searchParams }: SearchParamProps) => {
   const page = Number(searchParams?.page) || 1;
@@ -53,7 +54,7 @@ const Profile = async ({ searchParams }: SearchParamProps) => {
       <section className="mt-8 md:mt-14">
         <Collection
           images={images?.data}
-          totalPages={images?.totalPages}
+          totalPages={images?.totalpages}
           page={page}
         />
       </section>
