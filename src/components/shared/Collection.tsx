@@ -15,14 +15,14 @@ import { Button } from "../ui/button";
 import { formUrlQuery } from "@/lib/utils";
 
 type CollectionProps = {
-  hasSearch: boolean;
+  hasSearch?: boolean;
   images: any;
   totalPages?: number;
   page: number;
 };
 
 const Collection = ({
-  hasSearch,
+  hasSearch = false,
   images,
   totalPages = 1,
   page,
